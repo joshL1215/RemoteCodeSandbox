@@ -15,7 +15,7 @@ func main() {
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
-	router.Get("/", handler.InputHandler(cli))
+	router.Post("/", handler.InputHandler(cli))
 
 	server := &http.Server{
 		Addr:    ":5001",
