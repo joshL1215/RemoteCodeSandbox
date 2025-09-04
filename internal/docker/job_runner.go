@@ -3,6 +3,7 @@ package docker
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 )
 
 // Spawns a code execution container
-func SpawnJob(cli *client.Client, language string, code string, cases []models.Case) (string, error) {
+func RunJudgeJob(cli *client.Client, language string, code string, cases []models.Case) (string, error) {
 
 	// 30 sec timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -37,7 +38,7 @@ func SpawnJob(cli *client.Client, language string, code string, cases []models.C
 	}
 	defer os.RemoveAll(jobDir)
 
-	config = &container.Config{
+	config := &container.Config{
 		Image:      image,
 		Cmd:        []string{"python3", "/app/main.py"}, // TODO: other language support, this only allows Python
 		WorkingDir: "/app",
@@ -61,4 +62,45 @@ func SpawnJob(cli *client.Client, language string, code string, cases []models.C
 		NetworkMode:    "none",
 		ReadonlyRootfs: true,
 	}
+	// TODO: maybe put configs in a different file
+
+	cont, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, "")
+	if err != nil {
+		return "", fmt.Errorf("Failed to create container: %w", err)
+	}
+
+	containerID := cont.ID
+
+	if err := cli.ContainerStart(ctx, containerID, container.StartOptions{}); err != nil {
+		return "", fmt.Errorf("Failed to run container: %w", err)
+	}
+
+	resultCh, errCh := cli.ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
+
+	// Watches over channels for container results
+	select {
+	case <-resultCh:
+		// Got a result so move onto logging
+	case err := <-errCh:
+		if err != nil {
+			return "", fmt.Errorf("Container failed during run: %w")
+		}
+	case <-ctx.Done():
+		return "", fmt.Errorf("Timeout during container run")
+	}
+
+	logStream, err := cli.ContainerLogs(ctx, containerID, container.LogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+	})
+	if err != nil {
+		return "", fmt.Errorf("Failed to get container logs: %w", err)
+	}
+
+	logs, err := io.ReadAll(logStream)
+	if err != nil {
+		return "", fmt.Errorf("Failed to read log stream: %w", err)
+	}
+
+	return string(logs), nil
 }
