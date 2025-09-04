@@ -34,10 +34,17 @@ func SpawnJob(cli *client.Client, language string, code string, cases []models.C
 	}
 	defer os.RemoveAll(jobDir)
 
-
 	config = &container.Config{
-		Image: image,
-		Cmd:
+		Image:      image,
+		Cmd:        []string{"python3", "/app/main.py"}, // TODO: other language support, this only allows Python
+		WorkingDir: "/app",
+		Tty:        false,
 	}
 
+	hostConfig := &container.HostConfig{ // TODO: Add gVisor runtime for isolation
+		Binds: []string{
+			fmt.Sprintf("%s:/app", jobDir),
+		},
+		AutoRemove: true,
+	}
 }
