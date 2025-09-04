@@ -7,14 +7,21 @@ from submission import user_solution
 with open("cases.json") as f:
 	cases = json.load(f)
 for case in cases:
-	raw = case["input"]
+	raw_in = case["input"]
+	raw_out = case["expectedOutput"]
 
 	try:
-		converted = json.loads(raw)
+		actual_input = json.loads(raw_in)
 	except json.JSONDecodeError:
-		converted = raw
+		actual_input = raw_in
 	
-	print(user_solution(case))
+	try:
+		actual_expected_output = json.loads(raw_out)
+	except json.JSONDecodeError:
+		actual_expected_output = raw_out
+	
+	print(user_solution(actual_input))
+	print("Expected:", raw_out)
 `
 
 const NodeEntry = ``
