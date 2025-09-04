@@ -1,13 +1,15 @@
 package docker
 
 import (
+	"fmt"
+
 	"github.com/docker/docker/client"
 )
 
-func ConnectToDaemon() *client.Client {
+func ConnectToDaemon() (*client.Client, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("Could not connect to docker daemon: %w", err)
 	}
-	return cli
+	return cli, nil
 }
