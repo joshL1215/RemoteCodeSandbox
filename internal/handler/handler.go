@@ -6,18 +6,14 @@ import (
 	"net/http"
 
 	"github.com/docker/docker/client"
+	"github.com/joshL1215/RemoteCodeSandbox/internal/models"
 )
 
-type Case struct {
-	Input          string `json:"input"`
-	ExpectedOutput string `json:"expectedOutput"`
-}
-
 type RequestPayload struct {
-	Language    string `json:"language"`
-	Code        string `json:"code"`
-	PrelimCases []Case `json:"prelimCases"`
-	TestCases   []Case `json:"testCases"`
+	Language    string        `json:"language"`
+	Code        string        `json:"code"`
+	PrelimCases []models.Case `json:"prelimCases"`
+	TestCases   []models.Case `json:"testCases"`
 }
 
 func InputHandler(cli *client.Client) http.HandlerFunc {
@@ -29,6 +25,7 @@ func InputHandler(cli *client.Client) http.HandlerFunc {
 			http.Error(w, "Payload is invalid json: "+err.Error(), http.StatusBadRequest)
 			return
 		}
+
 		fmt.Printf("Received payload: %+v\n", payload)
 	}
 }
