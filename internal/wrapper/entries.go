@@ -16,4 +16,5 @@ for case in cases:
 	
 	print(user_solution(case))
 `
+
 const NodeEntry = ``

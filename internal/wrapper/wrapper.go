@@ -11,7 +11,7 @@ import (
 
 // Packs together runnable code submission file, entrypoint main file, and case json into a tmpdir
 // Returns directory of tmpdir
-func WrapJobDir(code string, language string, cases []models.Case) (string, error) {
+func WrapJobDir(language string, code string, cases []models.Case) (string, error) {
 
 	jobDir, err := os.MkdirTemp("", "job-*")
 	if err != nil {

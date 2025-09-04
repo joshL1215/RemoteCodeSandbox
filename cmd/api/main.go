@@ -11,7 +11,11 @@ import (
 )
 
 func main() {
-	cli := docker.ConnectToDaemon()
+
+	cli, err := docker.ConnectToDaemon()
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
@@ -22,8 +26,7 @@ func main() {
 		Handler: router,
 	}
 
-	err := server.ListenAndServe()
-	if err != nil {
-		fmt.Println("Listen and serve failed", err)
+	if err := server.ListenAndServe(); err != nil {
+		fmt.Println("Listn and serve failed ", err)
 	}
 }

@@ -6,14 +6,14 @@ import (
 	"net/http"
 
 	"github.com/docker/docker/client"
+	"github.com/joshL1215/RemoteCodeSandbox/internal/docker"
 	"github.com/joshL1215/RemoteCodeSandbox/internal/models"
 )
 
 type RequestPayload struct {
-	Language    string        `json:"language"`
-	Code        string        `json:"code"`
-	PrelimCases []models.Case `json:"prelimCases"`
-	TestCases   []models.Case `json:"testCases"`
+	Language string        `json:"language"`
+	Code     string        `json:"code"`
+	Cases    []models.Case `json:"cases"`
 }
 
 func InputHandler(cli *client.Client) http.HandlerFunc {
@@ -27,5 +27,12 @@ func InputHandler(cli *client.Client) http.HandlerFunc {
 		}
 
 		fmt.Printf("Received payload: %+v\n", payload)
+
+		result, err := docker.RunJudgeJob(cli, payload.Language, payload.Code, payload.Cases)
+		if err != nil {
+			http.Error(w, "Issue with server: "+err.Error(), http.StatusInternalServerError)
+		}
+
+		fmt.Printf("Result: %s", result)
 	}
 }

@@ -83,7 +83,7 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 		// Got a result so move onto logging
 	case err := <-errCh:
 		if err != nil {
-			return "", fmt.Errorf("Container failed during run: %w")
+			return "", fmt.Errorf("Container failed during run: %w", err)
 		}
 	case <-ctx.Done():
 		return "", fmt.Errorf("Timeout during container run")
