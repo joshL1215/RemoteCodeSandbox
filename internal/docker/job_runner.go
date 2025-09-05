@@ -29,7 +29,7 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 
 	image, ok := images[language]
 	if !ok {
-		return "", fmt.Errorf("language not supported: %w", language)
+		return "", fmt.Errorf("language not supported: %s", language)
 	}
 
 	// Temp directory creation

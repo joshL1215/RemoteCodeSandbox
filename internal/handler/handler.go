@@ -31,8 +31,17 @@ func InputHandler(cli *client.Client) http.HandlerFunc {
 		result, err := docker.RunJudgeJob(cli, payload.Language, payload.Code, payload.Cases)
 		if err != nil {
 			http.Error(w, "Issue with server: "+err.Error(), http.StatusInternalServerError)
+			return
 		}
 
-		fmt.Println(result)
+		fmt.Printf("Docker container returned: %s", result)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		_, err = w.Write([]byte(result))
+		if err != nil {
+			http.Error(w, "Failed to send json response "+err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
