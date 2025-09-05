@@ -23,7 +23,7 @@ for i, case in enumerate(cases):
 		actual_expected_output = raw_out
 	
 	user_out = str(user_solution(actual_input))
-	results.append({"logs" : user_out, "res" : "pass" if actual_expected_output == user_out else "fail"})
+	results.append({"returned" : user_out, "res" : "pass" if actual_expected_output == user_out else "fail"})
 
 print(json.dumps(results))
 `

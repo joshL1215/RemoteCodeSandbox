@@ -1,14 +1,15 @@
 package docker
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/joshL1215/RemoteCodeSandbox/internal/models"
 	"github.com/joshL1215/RemoteCodeSandbox/internal/wrapper"
 )
@@ -91,16 +92,17 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 
 	logStream, err := cli.ContainerLogs(ctx, containerID, container.LogsOptions{
 		ShowStdout: true,
-		ShowStderr: true,
+		ShowStderr: false,
 	})
 	if err != nil {
 		return "", fmt.Errorf("Failed to get container logs: %w", err)
 	}
 
-	logs, err := io.ReadAll(logStream)
+	var stdoutBuffer, stderrBuffer bytes.Buffer
+	_, err = stdcopy.StdCopy(&stdoutBuffer, &stderrBuffer, logStream)
 	if err != nil {
-		return "", fmt.Errorf("Failed to read log stream: %w", err)
+		return "", fmt.Errorf("Failed to read Docker logs: %w", err)
 	}
 
-	return string(logs), nil
+	return stdoutBuffer.String(), nil
 }

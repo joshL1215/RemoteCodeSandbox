@@ -33,6 +33,6 @@ func InputHandler(cli *client.Client) http.HandlerFunc {
 			http.Error(w, "Issue with server: "+err.Error(), http.StatusInternalServerError)
 		}
 
-		fmt.Printf("Result: %s", result)
+		fmt.Println(result)
 	}
 }
