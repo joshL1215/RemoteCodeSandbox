@@ -29,13 +29,13 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 
 	image, ok := images[language]
 	if !ok {
-		return "", fmt.Errorf("%s is not a supported language", language)
+		return "", fmt.Errorf("language not supported: %w", language)
 	}
 
 	// Temp directory creation
 	jobDir, err := wrapper.WrapJobDir(language, code, cases)
 	if err != nil {
-		return "", fmt.Errorf("Encountered an error while wrapping code: %w", err)
+		return "", fmt.Errorf("encountered an error while wrapping code: %w", err)
 	}
 	defer os.RemoveAll(jobDir)
 
@@ -67,13 +67,13 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 
 	cont, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, "")
 	if err != nil {
-		return "", fmt.Errorf("Failed to create container: %w", err)
+		return "", fmt.Errorf("failed to create container: %w", err)
 	}
 
 	containerID := cont.ID
 
 	if err := cli.ContainerStart(ctx, containerID, container.StartOptions{}); err != nil {
-		return "", fmt.Errorf("Failed to run container: %w", err)
+		return "", fmt.Errorf("failed to run container: %w", err)
 	}
 
 	resultCh, errCh := cli.ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
@@ -84,10 +84,10 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 		// Got a result so move onto logging
 	case err := <-errCh:
 		if err != nil {
-			return "", fmt.Errorf("Container failed during run: %w", err)
+			return "", fmt.Errorf("container failed during run: %w", err)
 		}
 	case <-ctx.Done():
-		return "", fmt.Errorf("Timeout during container run")
+		return "", fmt.Errorf("timeout during container run: %w", err)
 	}
 
 	logStream, err := cli.ContainerLogs(ctx, containerID, container.LogsOptions{
@@ -95,13 +95,13 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 		ShowStderr: false,
 	})
 	if err != nil {
-		return "", fmt.Errorf("Failed to get container logs: %w", err)
+		return "", fmt.Errorf("failed to get container logs: %w", err)
 	}
 
 	var stdoutBuffer, stderrBuffer bytes.Buffer
 	_, err = stdcopy.StdCopy(&stdoutBuffer, &stderrBuffer, logStream)
 	if err != nil {
-		return "", fmt.Errorf("Failed to read Docker logs: %w", err)
+		return "", fmt.Errorf("failed to read Docker logs: %w", err)
 	}
 
 	return stdoutBuffer.String(), nil
