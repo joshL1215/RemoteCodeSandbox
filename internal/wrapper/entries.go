@@ -22,7 +22,7 @@ for i, case in enumerate(cases):
 	except json.JSONDecodeError:
 		actual_expected_output = raw_out
 	
-	user_out = str(user_solution(actual_input))
+	user_out = user_solution(actual_input)
 	results.append({"returned" : user_out, "res" : "pass" if actual_expected_output == user_out else "fail"})
 
 print(json.dumps(results))
