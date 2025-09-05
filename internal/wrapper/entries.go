@@ -6,7 +6,9 @@ from submission import user_solution
 
 with open("cases.json") as f:
 	cases = json.load(f)
-for case in cases:
+
+results = []
+for i, case in enumerate(cases):
 	raw_in = case["input"]
 	raw_out = case["expectedOutput"]
 
@@ -20,8 +22,10 @@ for case in cases:
 	except json.JSONDecodeError:
 		actual_expected_output = raw_out
 	
-	print(user_solution(actual_input))
-	print("Expected:", raw_out)
+	user_out = str(user_solution(actual_input))
+	results.append({"logs" : user_out, "res" : "pass" if actual_expected_output == user_out else "fail"})
+
+print(json.dumps(results))
 `
 
 const NodeEntry = ``
