@@ -23,3 +23,22 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+  docker:
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Login to Docker hub
+      uses: docker/login-action@v3
+      with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        tags: |
+          joshl1215/remote-code-sandbox:latest
+          joshl1215/remote-code-sandbox:${{ github.sha }}
