@@ -47,7 +47,7 @@ func RunJudgeJob(cli *client.Client, language string, code string, cases []model
 		User:       "1000:1000",
 	}
 
-	hostConfig := &container.HostConfig{ // TODO: Add gVisor runtime for isolation
+	hostConfig := &container.HostConfig{
 		Binds: []string{
 			fmt.Sprintf("%s:/app:ro", jobDir),
 		},
