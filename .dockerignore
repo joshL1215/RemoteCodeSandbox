@@ -1,0 +1,26 @@
+# Git stuff
+.git
+.gitignore
+
+# Local binaries / build outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+app          # if your compiled binary is named 'app'
+bin/         # optional local bin folder
+
+# Logs and temp files
+*.log
+*.tmp
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Dependency cache (Go module cache is handled inside the container)
+vendor/
