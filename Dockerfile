@@ -7,7 +7,7 @@ COPY . .
 RUN go build -o app ./cmd/api
 
 # Run
-FROM alpine:3.21
+FROM debian:bookworm-slim
 WORKDIR /app
 COPY --from=builder /app/app .
 EXPOSE 5001
